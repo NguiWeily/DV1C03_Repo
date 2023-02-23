@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+    stages {
+        stage('S1_22053119') {
+            steps {
+                echo 'S1_22053119 : Environment Preparation Completed'
+            }
+        }
+        stage('S2_22053119') {
+            steps {
+                sh '''
+                    docker stop S2_22053119_Server || true
+                    docker rm S2_22053119_Server || true
+                    docker run -d --name S2_22053119_Server -p 42000:80 22053119_webimage
+                    echo "S2_22053119 : Web Server Creation Completed"
+                '''
+            }
+        }
+        stage('S3_22053119') {
+            parallel {
+                stage('API Test') {
+                    steps {
+                        echo 'S3_22053119 : API Test Completed'
+                        // API test activities
+                    }
+                }
+            }
+        }
+        stage('S4_22053119') {
+            parallel {
+                stage('DAST Security Test') {
+                    steps {
+                        echo 'S4_22053119 : DAST Security Test Completed'
+                        // DAST security test activities
+                    }
+                }
+            }
+        }
+        stage('S5_22053119') {
+            steps {
+                input 'Do you want to release the work?'
+            }
+        }
+        stage('S6_22053119') {
+            steps {
+                script {
+                    def inputResult = input(message: 'Proceed with the release?', ok: 'Proceed', parameters: [booleanParam(defaultValue: false, description: 'Proceed with the release?', name: 'Proceed')])
+                    if (inputResult) {
+                        echo 'Work Released - 22053119'
+                    } else {
+                        error 'Release aborted'
+                    }
+                }
+            }
+        }
+    }
+}
